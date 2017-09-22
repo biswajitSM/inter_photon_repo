@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import phconvert as phc
 from pathlib import Path
