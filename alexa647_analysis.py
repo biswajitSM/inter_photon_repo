@@ -4,7 +4,7 @@ import h5py
 import matplotlib.pyplot as plt
 from pt3t3r_to_hdf5 import *
 #=======================for plotting time trace of all the files i a list=============
-def timetrace_hist_folder(file_list, bintime, time_lim=(None, None), figsize=(16, 20)):
+def timetrace_hist_filelist(file_list, bintime, time_lim=(None, None), figsize=(16, 20)):
     '''
     Argument:
     file_list: list of t3r_files as an array
@@ -41,3 +41,46 @@ def timetrace_hist_folder(file_list, bintime, time_lim=(None, None), figsize=(16
         ax02.set_xticks([])
         ax02.set_yticks([])
     ax02.set_xlabel('PDF')
+    return
+def nanotime_intphoton_filelist(file_list, bins_nanotime, bins_intphoton,
+                             nanotime_lim, intphotn_lim, figsize=(20, 5)):
+    '''
+    Arguments:
+
+    Returns:
+    '''
+    fig = plt.figure(figsize = figsize);
+    cmap = plt.get_cmap('hsv')#jet_r
+    N=len(file_list)
+    nrows=1;ncols=2;
+    ax00=plt.subplot2grid((nrows, ncols), (0,0));
+    ax01=plt.subplot2grid((nrows, ncols), (0,1));
+    for i in range(len(file_list)):
+        color = cmap(float(i)/N)
+        t3rfile = file_list[i];
+        t3rfile_name = os.path.basename(t3rfile);
+        file_path_hdf5 = t3r_to_hdf5(filename=t3rfile);
+        h5 = h5py.File(file_path_hdf5);
+        unit = h5['photon_data']['timestamps_specs']['timestamps_unit'][...];
+        tcspc_unit = h5['photon_data']['nanotimes_specs']['tcspc_unit'][...];
+        t = h5['photon_data']['timestamps'][...][h5['photon_data']['detectors'][...] == 1];
+        nanotimes = h5['photon_data']['nanotimes'][...][h5['photon_data']['detectors'][...] == 1];
+        #=======lifetime plot=======
+        nanotimes = 1e9*nanotimes*tcspc_unit;#convert to ns
+        nanotimes = max(nanotimes)-nanotimes
+        hist, bin_edges = np.histogram(nanotimes,bins=bins_nanotime)
+        ax00.plot(bin_edges[4:-1], hist[4:]/max(hist), color=color, label=t3rfile_name)
+        ax00.set_yscale('log');
+        ax00.set_xlim(nanotime_lim)
+        ax00.legend()
+        #=======interphoton plot========
+        t = t*unit#convert to sec
+        int_photon = np.diff(t);
+        hist, bin_edges = np.histogram(int_photon, bins=bins_intphoton)
+        ax01.plot(bin_edges[:-1], hist, color=color, label=t3rfile_name)#hist/max(hist)
+        ax01.set_yscale('log');
+        ax01.set_xscale('log');
+        ax01.set_xlim(intphotn_lim);
+        ax01.set_xlabel
+        ax01.legend()
+    return
