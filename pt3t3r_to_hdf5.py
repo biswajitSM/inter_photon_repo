@@ -10,12 +10,13 @@ def pt3_to_hdf5(filename):
     Returns:
     Nothing. It creates a file with the same name but with hdf5 extension
     """
-    file_path = Path(filename)
-    if not file_path.is_file():
+    file_path = os.path.abspath(filename)
+    if not os.path.isfile(file_path):
         print('pt3 file not found')
-    file_path_hdf5 = Path(filename[:-3]+'hdf5')
-    if file_path_hdf5.is_file():
-        print(filename[:-3]+'hdf5 already exists')
+    file_path_hdf5 = file_path[:-3]+'hdf5'
+    if os.path.isfile(file_path_hdf5):
+        # print(filename[:-3]+'hdf5 already exists')
+        x=0;
         #break
     else:
         d, meta = phc.loader.nsalex_pt3(filename,
@@ -72,12 +73,13 @@ def t3r_to_hdf5(filename):
     Returns:
     Nothing. It creates a file with the same name but with hdf5 extension
     """
-    file_path = Path(filename)
-    if not file_path.is_file():
-        print('t3r file not found')
-    file_path_hdf5 = Path(filename[:-3]+'hdf5')
-    if file_path_hdf5.is_file():
-        print(filename[:-3]+'hdf5 already exists')
+    file_path = os.path.abspath(filename)
+    if not os.path.isfile(file_path):
+        print('pt3 file not found')
+    file_path_hdf5 = file_path[:-3]+'hdf5'
+    if os.path.isfile(file_path_hdf5):
+        # print(filename[:-3]+'hdf5 already exists')
+        x=0;
         #break
     else:
         d, meta = phc.loader.nsalex_t3r(filename,
@@ -113,7 +115,7 @@ def t3r_to_hdf5(filename):
         phc.hdf5.save_photon_hdf5(d, overwrite=True)
     return(file_path_hdf5)
 
-def pt3t3r_to_hdf5_folder(folderpath):
+def pt3t3r_to_hdf5_folder(folderpath, to_hdf5=True, remove_hdf5=False):
     """
     Arguments:
     folderpath:  Give the full path of the folder
@@ -126,11 +128,16 @@ def pt3t3r_to_hdf5_folder(folderpath):
     for dirpath, dirname, filenames in os.walk(folderpath):
         for filename in [f for f in filenames if f.endswith(tuple(pt3_extension))]:
             file_path = os.path.join(dirpath, filename)
-            pt3_to_hdf5(filename=file_path)
+            if to_hdf5:
+                pt3_to_hdf5(filename=file_path)
     #t3r conversion
     for dirpath, dirname, filenames in os.walk(folderpath):
         for filename in [f for f in filenames if f.endswith(tuple(t3r_extension))]:
             file_path = os.path.join(dirpath, filename)
-            t3r_to_hdf5(filename=file_path)
-            print(filename)
+            if to_hdf5:
+                t3r_to_hdf5(filename=file_path)
+            if remove_hdf5:
+                hdf5_file = file_path[:-3]+'hdf5' 
+                if os.path.isfile(hdf5_file):
+                    os.remove(hdf5_file)
     return
