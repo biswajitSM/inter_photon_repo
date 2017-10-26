@@ -3,4 +3,4 @@
 *.sublime-workspace
 *__pycache__/
 *data/
-*temp_binfree.py
+*temp*

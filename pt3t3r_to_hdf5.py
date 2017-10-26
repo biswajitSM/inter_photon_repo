@@ -1,7 +1,6 @@
 import os
 import numpy as np
 import phconvert as phc
-from pathlib import Path
 
 def pt3_to_hdf5(filename):
     """
@@ -124,20 +123,23 @@ def pt3t3r_to_hdf5_folder(folderpath, to_hdf5=True, remove_hdf5=False):
     """
     pt3_extension = [".pt3"]
     t3r_extension = [".t3r"]
+    photon_hdf5list = []
     #pt3 conversion
     for dirpath, dirname, filenames in os.walk(folderpath):
         for filename in [f for f in filenames if f.endswith(tuple(pt3_extension))]:
             file_path = os.path.join(dirpath, filename)
             if to_hdf5:
-                pt3_to_hdf5(filename=file_path)
+                file_path_hdf5 = pt3_to_hdf5(filename=file_path)
+                photon_hdf5list = np.append(photon_hdf5list, file_path_hdf5)
     #t3r conversion
     for dirpath, dirname, filenames in os.walk(folderpath):
         for filename in [f for f in filenames if f.endswith(tuple(t3r_extension))]:
             file_path = os.path.join(dirpath, filename)
             if to_hdf5:
-                t3r_to_hdf5(filename=file_path)
+                file_path_hdf5 = t3r_to_hdf5(filename=file_path)
+                photon_hdf5list = np.append(photon_hdf5list, file_path_hdf5)
             if remove_hdf5:
                 hdf5_file = file_path[:-3]+'hdf5' 
                 if os.path.isfile(hdf5_file):
                     os.remove(hdf5_file)
-    return
+    return photon_hdf5list
